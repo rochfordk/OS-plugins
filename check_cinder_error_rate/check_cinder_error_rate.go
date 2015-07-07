@@ -1,3 +1,20 @@
+// Arguments:
+// https://www.monitoring-plugins.org/doc/man/check_ping.html
+// http://www.bortzmeyer.org/go-dns-icinga.html
+/*
+-H hostname
+-P port
+-u user
+-p password
+-h hours
+-S state 
+-w warning
+-c critical
+--extra-opts (ini file) https://www.monitoring-plugins.org/doc/extra-opts.html
+
+Extra Opts file used to pass in additional status checks and to declare endpoints for metrics injection.
+*/
+
 package main
 
 import (
