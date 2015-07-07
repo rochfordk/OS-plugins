@@ -6,7 +6,7 @@ import (
           "github.com/fractalcat/nagiosplugin"
 	      "database/sql"
           _ "github.com/go-sql-driver/mysql"
-          //"fmt"
+          "fmt"
 )
 
 func main() {
@@ -71,6 +71,10 @@ func main() {
         //vsc := volume_state_count {count: Total, percentage: Percentage} 
         //volume_states[Volume_Status] = vsc
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
+    }
+
+    for key, value := range volume_states {
+        fmt.Println("Key:", key, "Value:", value)
     }
 
     
