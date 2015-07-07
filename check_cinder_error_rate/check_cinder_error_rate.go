@@ -41,7 +41,34 @@ func main() {
         Percentage float64
     )
 
-    //fmt.Println("The square number of 13 is: %d", "120")
+    // Command line Parameters
+    var (
+        hostname string
+        port int
+        user string
+        password string
+        hours int
+        state string
+        warning int
+        critical int
+        extra-opts string
+    )
+    func init() {
+        flag.StringVar(&hostname, "H", "127.0.0.1", "Address of OpenStack (Cinder DB) MySQL host")
+        flag.IntVar(&port, "P", 3306, "Port of OpenStack (Cinder DB) MySQL host")
+        flag.StringVar(&user, "u", "monitoring_user", "User of OpenStack (Cinder DB) MySQL host")
+        flag.StringVar(&password, "p", "", "Password of OpenStack (Cinder DB) MySQL host")
+        flag.IntVar(&hours, "h", 120, "Password of OpenStack (Cinder DB) MySQL host")
+        flag.StringVar(&state, "S", "error", "Volume state for which check is applied")
+        flag.IntVar(&warning, "w", "5", "Percentage threshold defining warning state")
+        flag.IntVar(&critical, "c", "10", "Percentage threshold defining critical state")
+        flag.StringVar(&extra-opts, "extra-opts", "", "")
+        flag.Parse()
+    }
+    var Usage = func() {
+        fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+        PrintDefaults()
+    }
 
     // Initialize the check - this will return an UNKNOWN result
     // until more results are added.
@@ -50,7 +77,8 @@ func main() {
     defer check.Finish()
 
     // obtain data here
-    db, err := sql.Open("mysql", os.Args[1])
+    db, err := sql.Open("mysql", user+":"+password+"@tcp("+hostname+":"+port+")/cinder")
+
     if err != nil {
         panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
     }
@@ -73,7 +101,7 @@ func main() {
 
     //var rows Row
     // Query the results for the last n hours
-    rows, err := stmt.Query(120, 120)
+    rows, err := stmt.Query(hours, hours)
     if err != nil {
         panic(err.Error()) // proper error handling instead of panic in your app
     }
@@ -94,6 +122,10 @@ func main() {
         fmt.Println("Key:", key, "Value:", value)
     }
 
+    //check for state
+    if dosage, ok := meds["Xanax"]; ok {
+    fmt.Println("Xanax", dosage)
+    }
     
     
 
