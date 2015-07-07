@@ -1,6 +1,7 @@
 package main
 
 import (
+          "os"
           "math"
           "github.com/fractalcat/nagiosplugin"
 	      "database/sql"
@@ -32,7 +33,7 @@ func main() {
     defer check.Finish()
 
     // obtain data here
-    db, err := sql.Open("mysql", "user:password@/dbname")
+    db, err := sql.Open("mysql", os.Args[1])
     if err != nil {
         panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
     }
