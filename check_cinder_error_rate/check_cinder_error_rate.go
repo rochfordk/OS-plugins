@@ -145,12 +145,15 @@ func main() {
         if state_count.percentage < float64(warning) {
             fmt.Println("GRAND")
             check.AddResult(nagiosplugin.OK, "Grand So!")
+            check.Finish()
         } else if state_count.percentage >= float64(critical) {
             fmt.Println("CRITICAL")
             check.AddResult(nagiosplugin.CRITICAL, "We're fecked!")
+            check.Finish()
         } else {
             fmt.Println("WARNING")
             check.AddResult(nagiosplugin.WARNING, "WARNING ")
+            check.Finish()
         }
 
     }else {
