@@ -112,7 +112,7 @@ func main() {
     stmt, err := db.Prepare("SELECT status AS `Volume_Status`, COUNT(1) AS `Total` ,COUNT(1) / t.cnt * 100 AS `Percentage` FROM volumes v CROSS JOIN (SELECT COUNT(1) AS cnt FROM volumes WHERE created_at > DATE_SUB(NOW(), INTERVAL ? HOUR)) t WHERE v.created_at > DATE_SUB(NOW(), INTERVAL ? HOUR) GROUP BY v.status;")
     if err != nil {
         //panic(err.Error()) // proper error handling instead of panic in your app
-        check.Exitf(nagiosplugin.UNKNOWN, "Could not prepare statement")
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not prepare statement: ", err.Error()))
     }
     defer stmt.Close()
 
@@ -121,7 +121,7 @@ func main() {
     rows, err := stmt.Query(hours, hours)
     if err != nil {
         //panic(err.Error()) // proper error handling instead of panic in your app
-        check.Exitf(nagiosplugin.UNKNOWN, "Could not execute query")
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not execute query: ", err.Error()))
     }
     defer rows.Close()
 
@@ -130,7 +130,7 @@ func main() {
         if err != nil {
                 //t.Fatalf("Scan: %v", err)
                 //panic(err.Error()) // proper error handling instead of panic in your app
-                check.Exitf(nagiosplugin.UNKNOWN, "Invalid result set")
+                check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Invalid result set: ", err.Error()))
         }
         //vsc := volume_state_count {count: Total, percentage: Percentage} 
         //volume_states[Volume_Status] = vsc
