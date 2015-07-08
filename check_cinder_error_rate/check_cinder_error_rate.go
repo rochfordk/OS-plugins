@@ -1,6 +1,4 @@
 // Arguments:
-// https://www.monitoring-plugins.org/doc/man/check_ping.html
-// http://www.bortzmeyer.org/go-dns-icinga.html
 /*
 check_cinder_error_rate]# ./check_cinder_error_rate -H 87.44.1.140 -P 3306 -u root -p 'password' -h 120 -S error -w 5 -c 10 --extra-opts cinder_check.cfg
 
@@ -29,11 +27,11 @@ package main
 import (
           //"os"
           //"math"
-          "github.com/fractalcat/nagiosplugin"
-	      "database/sql"
-          _ "github.com/go-sql-driver/mysql"
-          "fmt"
-          "flag"
+    "github.com/fractalcat/nagiosplugin"
+    "database/sql"
+    _"github.com/go-sql-driver/mysql"
+    "fmt"
+    "flag"
 )
 
 // Command line Parameters
@@ -89,13 +87,10 @@ func main() {
     defer check.Finish()
 
     // obtain data here
-    //var connString string
     connString := fmt.Sprint(user, ":", password, "@tcp(", hostname, ":", port, ")/cinder")
-    //connString = user+":"+password+"@tcp("+hostname+":"+port+")/cinder"
     db, err := sql.Open("mysql", connString)
 
     if err != nil {
-        //panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
         check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not create database connection: ", err.Error()))
     }
     defer db.Close()
@@ -103,24 +98,19 @@ func main() {
     // Open doesn't open a connection. Validate DSN data:
     err = db.Ping()
     if err != nil {
-        //panic(err.Error()) // proper error handling instead of panic in your app
-        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not open database connection: ", err.Error()))
+         check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not open database connection: ", err.Error()))
     }
     
-    // Use the DB normally, execute the querys etc
     // Prepare statement for reading data
     stmt, err := db.Prepare("SELECT status AS `Volume_Status`, COUNT(1) AS `Total` ,COUNT(1) / t.cnt * 100 AS `Percentage` FROM volumes v CROSS JOIN (SELECT COUNT(1) AS cnt FROM volumes WHERE created_at > DATE_SUB(NOW(), INTERVAL ? HOUR)) t WHERE v.created_at > DATE_SUB(NOW(), INTERVAL ? HOUR) GROUP BY v.status;")
     if err != nil {
-        //panic(err.Error()) // proper error handling instead of panic in your app
         check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not prepare statement: ", err.Error()))
     }
     defer stmt.Close()
 
-    //var rows Row
     // Query the results for the last n hours
     rows, err := stmt.Query(hours, hours)
     if err != nil {
-        //panic(err.Error()) // proper error handling instead of panic in your app
         check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not execute query: ", err.Error()))
     }
     defer rows.Close()
@@ -128,12 +118,8 @@ func main() {
     for rows.Next(){
         err = rows.Scan(&Volume_Status, &Total, &Percentage)
         if err != nil {
-                //t.Fatalf("Scan: %v", err)
-                //panic(err.Error()) // proper error handling instead of panic in your app
                 check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Invalid result set: ", err.Error()))
         }
-        //vsc := volume_state_count {count: Total, percentage: Percentage} 
-        //volume_states[Volume_Status] = vsc
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
     }
 
@@ -142,12 +128,8 @@ func main() {
         fmt.Println("Key:", key, "Value:", value)
     }*/
 
-    //fmt.Println("KR-state", state)
-
     //check for state
     if state_count, ok := volume_states[state]; ok {
-        //fmt.Println("KR-Percentage", state_count.percentage)
-
         if state_count.percentage < float64(warning) {
             check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
             check.AddPerfDatum(fmt.Sprint("Volumes in state '",state,"'"), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
@@ -171,30 +153,6 @@ func main() {
         check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
         check.Finish()
     }
-    
-    
-    /*
-    // Add an 'OK' result - if no 'worse' check results have been
-    // added, this is the one that will be output.
-    check.AddResult(nagiosplugin.OK, "everything looks shiny, cap'n")
-    // Add some perfdata too (label, unit, value, min, max,
-    // warn, crit). The math.Inf(1) will be parsed as 'no
-    // maximum'.
-    check.AddPerfDatum("badness", "kb", 3.14159, 0.0, math.Inf(1), 8000.0, 9000.0)
 
-    // Parse an range from the command line and the more severe
-    // results if they match.
-    warnRange, err := nagiosplugin.ParseRange( "1:2" )
-    if err != nil {
-        check.AddResult(nagiosplugin.UNKNOWN, "error parsing warning range")
-    }
-    if warnRange.Check( 3.14159 ) {
-        check.AddResult(nagiosplugin.WARNING, "Are we crashing again?")
-    }*/
 }
 
-// put the data from the SQL query into a map of structs
-// perfrom the logic operatinos and checking on that data structure
-
-//http://stackoverflow.com/questions/17265463/how-do-i-convert-a-database-row-into-a-struct-in-go
-// 
