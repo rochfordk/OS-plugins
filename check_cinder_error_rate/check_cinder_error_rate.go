@@ -22,6 +22,7 @@ Extra Opts file used to pass in additional status checks and to declare endpoint
 // Help message and defaults for arguments
 // proper error handling
 // modify to handle multiple states
+// add metrics output
 
 package main
 
@@ -95,7 +96,7 @@ func main() {
 
     if err != nil {
         //panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-        check.Exitf(nagiosplugin.UNKNOWN, "Could not create database connection")
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not create database connection: ", err.Error()))
     }
     defer db.Close()
 
@@ -136,10 +137,10 @@ func main() {
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
     }
 
-    fmt.Println("Database Results:")
+    /*fmt.Println("Database Results:")
     for key, value := range volume_states {
         fmt.Println("Key:", key, "Value:", value)
-    }
+    }*/
 
     //fmt.Println("KR-state", state)
 
