@@ -2,6 +2,8 @@
 // https://www.monitoring-plugins.org/doc/man/check_ping.html
 // http://www.bortzmeyer.org/go-dns-icinga.html
 /*
+check_cinder_error_rate]# ./check_cinder_error_rate -H 87.44.1.140 -P 3306 -u root -p 'password' -h 120 -S error -w 5 -c 10 --extra-opts cinder_check.cfg
+
 -H hostname
 -P port
 -u user
@@ -10,7 +12,7 @@
 -S state 
 -w warning
 -c critical
---extra-opts (ini file) https://www.monitoring-plugins.org/doc/extra-opts.html
+--extra-opts
 
 Extra Opts file used to pass in additional status checks and to declare endpoints for metrics injection.
 */
@@ -139,9 +141,12 @@ func main() {
     }
 
     //check for state
-    /*if dosage, ok := meds["Xanax"]; ok {
-    fmt.Println("Xanax", dosage)
-    }*/
+    if state_count, ok := volume_states[state]; ok {
+    fmt.Println("KR-Percentage", state_count.percentage)
+    }else
+    {
+        fmt.Println("Key not found:")
+    }
     
     
 
