@@ -21,6 +21,7 @@ Extra Opts file used to pass in additional status checks and to declare endpoint
 
 // Help message and defaults for arguments
 // proper error handling
+// modify to handle multiple states
 
 package main
 
@@ -78,11 +79,7 @@ func main() {
         Volume_Status string
         Total int
         Percentage float64
-    )
-
-    
-   
-    
+    )   
 
     // Initialize the check - this will return an UNKNOWN result
     // until more results are added.
@@ -106,7 +103,6 @@ func main() {
     if err != nil {
         panic(err.Error()) // proper error handling instead of panic in your app
     }
-
     
     // Use the DB normally, execute the querys etc
     // Prepare statement for reading data
@@ -135,20 +131,29 @@ func main() {
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
     }
 
-    fmt.Println("Database Results:")
+    /*fmt.Println("Database Results:")
     for key, value := range volume_states {
         fmt.Println("Key:", key, "Value:", value)
-    }
+    }*/
 
-    fmt.Println("KR-state", state)
-    
+    //fmt.Println("KR-state", state)
+
     //check for state
     if state_count, ok := volume_states[state]; ok {
-    fmt.Println("KR-Percentage", state_count.percentage)
+        fmt.Println("KR-Percentage", state_count.percentage)
 
+        if state_count.percentage < float64(warning) {
+            fmt.Println("GRAND")
+            check.AddResult(nagiosplugin.OK, "Grand So!")
+        } else if state_count.percentage >= float64(critical) {
+            fmt.Println("CRITICAL")
+            check.AddResult(nagiosplugin.CRITICAL, "We're fecked!")
+        } else {
+            fmt.Println("WARNING")
+            check.AddResult(nagiosplugin.WARNING, "WARNING ")
+        }
 
-    }else
-    {
+    }else {
         fmt.Println("Key not found:")
     }
     
