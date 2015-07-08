@@ -15,10 +15,15 @@
 Extra Opts file used to pass in additional status checks and to declare endpoints for metrics injection.
 */
 
+// TODO
+
+// Help message and defaults for arguments
+// proper error handling
+
 package main
 
 import (
-          "os"
+          //"os"
           "math"
           "github.com/fractalcat/nagiosplugin"
 	      "database/sql"
@@ -26,6 +31,37 @@ import (
           "fmt"
           "flag"
 )
+
+// Command line Parameters
+var (
+    hostname string
+    port int
+    user string
+    password string
+    hours int
+    state string
+    warning int
+    critical int
+    extra_opts string
+)
+
+func init() {
+        flag.StringVar(&hostname, "H", "127.0.0.1", "Address of OpenStack (Cinder DB) MySQL host")
+        flag.IntVar(&port, "P", 3306, "Port of OpenStack (Cinder DB) MySQL host")
+        flag.StringVar(&user, "u", "monitoring_user", "User of OpenStack (Cinder DB) MySQL host")
+        flag.StringVar(&password, "p", "", "Password of OpenStack (Cinder DB) MySQL host")
+        flag.IntVar(&hours, "h", 120, "Password of OpenStack (Cinder DB) MySQL host")
+        flag.StringVar(&state, "S", "error", "Volume state for which check is applied")
+        flag.IntVar(&warning, "w", 5, "Percentage threshold defining warning state")
+        flag.IntVar(&critical, "c", 10, "Percentage threshold defining critical state")
+        flag.StringVar(&extra_opts, "extra-opts", "", "")
+        flag.Parse()
+
+        //var Usage = func() {
+        //fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+        //PrintDefaults()
+        //}
+}
 
 func main() {
 
@@ -42,34 +78,9 @@ func main() {
         Percentage float64
     )
 
-    // Command line Parameters
-    var (
-        hostname string
-        port int
-        user string
-        password string
-        hours int
-        state string
-        warning int
-        critical int
-        extra-opts string
-    )
-    func init() {
-        flag.StringVar(&hostname, "H", "127.0.0.1", "Address of OpenStack (Cinder DB) MySQL host")
-        flag.IntVar(&port, "P", 3306, "Port of OpenStack (Cinder DB) MySQL host")
-        flag.StringVar(&user, "u", "monitoring_user", "User of OpenStack (Cinder DB) MySQL host")
-        flag.StringVar(&password, "p", "", "Password of OpenStack (Cinder DB) MySQL host")
-        flag.IntVar(&hours, "h", 120, "Password of OpenStack (Cinder DB) MySQL host")
-        flag.StringVar(&state, "S", "error", "Volume state for which check is applied")
-        flag.IntVar(&warning, "w", "5", "Percentage threshold defining warning state")
-        flag.IntVar(&critical, "c", "10", "Percentage threshold defining critical state")
-        flag.StringVar(&extra-opts, "extra-opts", "", "")
-        flag.Parse()
-    }
-    var Usage = func() {
-        fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-        PrintDefaults()
-    }
+    
+   
+    
 
     // Initialize the check - this will return an UNKNOWN result
     // until more results are added.
@@ -78,7 +89,10 @@ func main() {
     defer check.Finish()
 
     // obtain data here
-    db, err := sql.Open("mysql", user+":"+password+"@tcp("+hostname+":"+port+")/cinder")
+    //var connString string
+    connString := fmt.Sprint(user, ":", password, "@tcp(", hostname, ":", port, ")/cinder")
+    //connString = user+":"+password+"@tcp("+hostname+":"+port+")/cinder"
+    db, err := sql.Open("mysql", connString)
 
     if err != nil {
         panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
@@ -124,9 +138,9 @@ func main() {
     }
 
     //check for state
-    if dosage, ok := meds["Xanax"]; ok {
+    /*if dosage, ok := meds["Xanax"]; ok {
     fmt.Println("Xanax", dosage)
-    }
+    }*/
     
     
 
