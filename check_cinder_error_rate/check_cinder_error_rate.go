@@ -131,22 +131,22 @@ func main() {
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
     }
 
-    /*fmt.Println("Database Results:")
+    fmt.Println("Database Results:")
     for key, value := range volume_states {
         fmt.Println("Key:", key, "Value:", value)
-    }*/
+    }
 
     //fmt.Println("KR-state", state)
 
     //check for state
     if state_count, ok := volume_states[state]; ok {
-        fmt.Println("KR-Percentage", state_count.percentage)
+        //fmt.Println("KR-Percentage", state_count.percentage)
 
         if state_count.percentage < float64(warning) {
             fmt.Println("GRAND")
             check.AddResult(nagiosplugin.OK, "Grand So!")
-            check.AddPerfDatum("Precentage ", "%", state_count.percentage, 0.0, math.Inf(1), 8000.0, 9000.0)
-            check.AddPerfDatum("Count ", "", float64(state_count.count), 0.0, math.Inf(1), 8000.0, 9000.0)
+            check.AddPerfDatum("Precentage", "%", state_count.percentage)
+            check.AddPerfDatum("Count", "", float64(state_count.count))
             check.Finish()
         } else if state_count.percentage >= float64(critical) {
             fmt.Println("CRITICAL")
