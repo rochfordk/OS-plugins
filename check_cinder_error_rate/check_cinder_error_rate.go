@@ -104,7 +104,7 @@ func main() {
     err = db.Ping()
     if err != nil {
         //panic(err.Error()) // proper error handling instead of panic in your app
-        check.Exitf(nagiosplugin.UNKNOWN, "Could not open database connection")
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not open database connection: ", err.Error()))
     }
     
     // Use the DB normally, execute the querys etc
