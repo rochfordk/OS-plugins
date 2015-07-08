@@ -145,8 +145,8 @@ func main() {
         if state_count.percentage < float64(warning) {
             fmt.Println("GRAND")
             check.AddResult(nagiosplugin.OK, "Grand So!")
-            check.AddPerfDatum("Precentage", "%", state_count.percentage)
-            check.AddPerfDatum("Count", "", float64(state_count.count))
+            check.AddPerfDatum("Precentage", "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+            check.AddPerfDatum("Count", "", float64(state_count.count), float64(warning), float64(critical), 0.0, 100.0)
             check.Finish()
         } else if state_count.percentage >= float64(critical) {
             fmt.Println("CRITICAL")
