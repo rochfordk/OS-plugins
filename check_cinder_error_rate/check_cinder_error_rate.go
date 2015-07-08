@@ -140,11 +140,13 @@ func main() {
         fmt.Println("Key:", key, "Value:", value)
     }
 
+    fmt.Println("KR-state", state)
+    
     //check for state
     if state_count, ok := volume_states[state]; ok {
     fmt.Println("KR-Percentage", state_count.percentage)
 
-    fmt.Println("KR-state", state)
+
     }else
     {
         fmt.Println("Key not found:")
