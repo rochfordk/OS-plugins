@@ -133,6 +133,7 @@ func main() {
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
     }
 
+    fmt.Println("Database Results:")
     for key, value := range volume_states {
         fmt.Println("Key:", key, "Value:", value)
     }
