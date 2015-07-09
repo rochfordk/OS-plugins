@@ -29,7 +29,7 @@ import (
           //"math"
     "github.com/fractalcat/nagiosplugin"
     "database/sql"
-    //_"github.com/go-sql-driver/mysql"
+    _"github.com/go-sql-driver/mysql"
     "fmt"
     "flag"
     "strings"
