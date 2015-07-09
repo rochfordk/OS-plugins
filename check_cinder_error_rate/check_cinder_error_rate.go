@@ -90,7 +90,8 @@ func main() {
     defer check.Finish()
 
     // obtain data here
-    connString := fmt.Sprint("%s:%s@tcp(%s:%d)/cinder", user, password, hostname, port)
+    connString := fmt.Sprint(user, ":", password, "@tcp(", hostname, ":", port, ")/cinder")
+    //connString := fmt.Sprint("%s:%s@tcp(%s:%d)/cinder", user, password, hostname, port)
     db, err := sql.Open("mysql", connString)
 
     if err != nil {
