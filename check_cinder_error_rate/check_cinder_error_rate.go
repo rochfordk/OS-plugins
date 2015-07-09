@@ -136,7 +136,7 @@ func main() {
     //check for state(s)
     states := strings.Split(stateslist, ",")
     for index, state := range states {
-        if len(state)<0{
+        
         if state_count, ok := volume_states[state]; ok{
             if state_count.percentage < float64(warning) {
                 check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
@@ -160,7 +160,7 @@ func main() {
             check.AddPerfDatum(fmt.Sprintf("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
             check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
             //check.Finish()
-        }}
+        }
         fmt.Println(index)
     }
     check.Finish()
