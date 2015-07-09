@@ -29,9 +29,10 @@ import (
           //"math"
     "github.com/fractalcat/nagiosplugin"
     "database/sql"
-    _"github.com/go-sql-driver/mysql"
+    //_"github.com/go-sql-driver/mysql"
     "fmt"
     "flag"
+    "strings"
 )
 
 // Command line Parameters
@@ -41,7 +42,7 @@ var (
     user string
     password string
     hours int
-    state string
+    stateslist string
     warning int
     critical int
     extra_opts string
@@ -53,7 +54,7 @@ func init() {
         flag.StringVar(&user, "u", "monitoring_user", "User of OpenStack (Cinder DB) MySQL host")
         flag.StringVar(&password, "p", "", "Password of OpenStack (Cinder DB) MySQL host")
         flag.IntVar(&hours, "h", 120, "Password of OpenStack (Cinder DB) MySQL host")
-        flag.StringVar(&state, "S", "error", "Volume state for which check is applied")
+        flag.StringVar(&stateslist, "S", "error", "Volume state for which check is applied")
         flag.IntVar(&warning, "w", 5, "Percentage threshold defining warning state")
         flag.IntVar(&critical, "c", 10, "Percentage threshold defining critical state")
         flag.StringVar(&extra_opts, "extra-opts", "", "")
@@ -130,31 +131,37 @@ func main() {
         fmt.Println("Key:", key, "Value:", value)
     }*/
 
-    //check for state
-    if state_count, ok := volume_states[state]; ok {
-        if state_count.percentage < float64(warning) {
+
+    //check for state(s)
+    states := strings.Split(stateslist, ",")
+    for index, state := range states {
+        if state_count, ok := volume_states[state]; ok {
+            if state_count.percentage < float64(warning) {
+                check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
+                check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+                check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
+                //check.Finish()
+            } else if state_count.percentage >= float64(critical) {
+                check.AddResult(nagiosplugin.CRITICAL, "Cinder Volume CRITICAL")
+                check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+                check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
+                //check.Finish()
+            } else {
+                check.AddResult(nagiosplugin.WARNING, "Cinder Volume WARNING")
+                check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+                check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
+                //check.Finish()
+            }
+
+        }else { // if the map doesn't contain the state key then no volumes are in that state and therefore non exceed the threshold
             check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
             check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
             check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
-            check.Finish()
-        } else if state_count.percentage >= float64(critical) {
-            check.AddResult(nagiosplugin.CRITICAL, "Cinder Volume CRITICAL")
-            check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
-            check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
-            check.Finish()
-        } else {
-            check.AddResult(nagiosplugin.WARNING, "Cinder Volume WARNING")
-            check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
-            check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
-            check.Finish()
+            //check.Finish()
         }
-
-    }else { // if the map doesn't contain the state key then no volumes are in that state and therefore non exceed the threshold
-        check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
-        check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
-        check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
-        check.Finish()
+        fmt.Println(index)
     }
+    check.Finish()
 
 }
 
