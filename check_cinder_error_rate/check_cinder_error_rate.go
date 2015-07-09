@@ -67,11 +67,13 @@ func init() {
 
 func main() {
 
+    // struct to quantify states
     type volume_state_count struct {
         count int
         percentage float64 
     }
 
+    // map of volume states
     var volume_states = make(map[string]volume_state_count)
 
     var (
@@ -87,38 +89,38 @@ func main() {
     defer check.Finish()
 
     // obtain data here
-    connString := fmt.Sprint(user, ":", password, "@tcp(", hostname, ":", port, ")/cinder")
+    connString := fmt.Sprint("%s:%s@tcp(%s:%d)/cinder", user, password, hostname, port)
     db, err := sql.Open("mysql", connString)
 
     if err != nil {
-        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not create database connection: ", err.Error()))
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not create database connection: %s", err.Error()))
     }
     defer db.Close()
 
     // Open doesn't open a connection. Validate DSN data:
     err = db.Ping()
     if err != nil {
-         check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not open database connection: ", err.Error()))
+         check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not open database connection: %s", err.Error()))
     }
     
     // Prepare statement for reading data
     stmt, err := db.Prepare("SELECT status AS `Volume_Status`, COUNT(1) AS `Total` ,COUNT(1) / t.cnt * 100 AS `Percentage` FROM volumes v CROSS JOIN (SELECT COUNT(1) AS cnt FROM volumes WHERE created_at > DATE_SUB(NOW(), INTERVAL ? HOUR)) t WHERE v.created_at > DATE_SUB(NOW(), INTERVAL ? HOUR) GROUP BY v.status;")
     if err != nil {
-        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not prepare statement: ", err.Error()))
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not prepare statement: %s", err.Error()))
     }
     defer stmt.Close()
 
     // Query the results for the last n hours
     rows, err := stmt.Query(hours, hours)
     if err != nil {
-        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not execute query: ", err.Error()))
+        check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Could not execute query: %s", err.Error()))
     }
     defer rows.Close()
 
     for rows.Next(){
         err = rows.Scan(&Volume_Status, &Total, &Percentage)
         if err != nil {
-                check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Invalid result set: ", err.Error()))
+                check.Exitf(nagiosplugin.UNKNOWN, fmt.Sprint("Invalid result set: %s", err.Error()))
         }
         volume_states[Volume_Status] = volume_state_count {count: Total, percentage: Percentage} 
     }
@@ -132,24 +134,24 @@ func main() {
     if state_count, ok := volume_states[state]; ok {
         if state_count.percentage < float64(warning) {
             check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
-            check.AddPerfDatum(fmt.Sprint("Volumes in state '",state,"'"), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+            check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
             check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
             check.Finish()
         } else if state_count.percentage >= float64(critical) {
             check.AddResult(nagiosplugin.CRITICAL, "Cinder Volume CRITICAL")
-            check.AddPerfDatum(fmt.Sprint("Volumes in state '",state,"'"), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+            check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
             check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
             check.Finish()
         } else {
             check.AddResult(nagiosplugin.WARNING, "Cinder Volume WARNING")
-            check.AddPerfDatum(fmt.Sprint("Volumes in state '",state,"'"), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+            check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
             check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
             check.Finish()
         }
 
     }else { // if the map doesn't contain the state key then no volumes are in that state and therefore non exceed the threshold
         check.AddResult(nagiosplugin.OK, "Cinder Volume OK")
-        check.AddPerfDatum(fmt.Sprint("Volumes in state '",state,"'"), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
+        check.AddPerfDatum(fmt.Sprint("Volumes in state '%s'",state), "%", state_count.percentage, float64(warning), float64(critical), 0.0, 100.0)
         check.AddPerfDatum("Count", "", float64(state_count.count), 0.0 , 0.0 , 0.0 , 0.0 )
         check.Finish()
     }
