@@ -18,8 +18,6 @@ Extra Opts file used to pass in additional status checks and to declare endpoint
 // TODO
 
 // Help message and defaults for arguments
-// proper error handling
-// modify to handle multiple states
 // add metrics output
 
 package main
@@ -60,11 +58,13 @@ func init() {
         flag.StringVar(&extra_opts, "extra-opts", "", "")
         flag.Parse()
 
-        //var Usage = func() {
+        
+}
+
+//var Usage = func() {
         //fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
         //PrintDefaults()
         //}
-}
 
 func main() {
 
